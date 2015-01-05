@@ -287,7 +287,7 @@ function httpAction(method, uri, data, outputFile, callback, opts) {
 
     var req = http.request(options, function(res) {
         // Hander request
-        res.setEncoding('utf8');
+        res.setEncoding('base64');
         res.on('data', function (chunk) {
             resData += chunk;
         });
@@ -301,11 +301,13 @@ function httpAction(method, uri, data, outputFile, callback, opts) {
                         _tmpInfo[key] = res.headers[key];
                     }
                 }
-            }console.log(res.headers);//console.log(options);
-console.log(outputFile);
+            }
+            //console.log(res.headers);
+            //console.log(options);
+            //console.log(outputFile);
             if (outputFile) {
                 var fs = require('fs');
-                fs.writeFile(outputFile, resData, 'utf8', function(err) {
+                fs.writeFile(outputFile, resData, {encoding:'base64'}, function(err) {
                     callback(err, {
                         headers: res.headers,
                         body: resData
@@ -313,6 +315,8 @@ console.log(outputFile);
                 })
             }
             else {
+                var buffer = new Buffer(resData, 'base64');
+                resData = buffer.toString('utf8');
                 if (res.statusCode >= 400 && res.statusCode < 600) {
                     callback({
                         statusCode: res.statusCode,
